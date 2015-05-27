@@ -57,8 +57,12 @@ namespace DisconnectingServer
                 {
                     using (var client = socket.AcceptTcpClient())
                     {
-                        Console.WriteLine("Client connected on 943");
                         var stream = client.GetStream();
+
+                        var reader = new StreamReader(stream);
+                        var request = reader.ReadLine();
+                        Console.WriteLine("Got request on 943: {0}", request);
+
                         var writer = new StreamWriter(stream);
                         writer.Write(@"<?xml version=""1.0"" encoding =""utf-8""?>
 <access-policy>
@@ -73,6 +77,7 @@ namespace DisconnectingServer
     </policy>
   </cross-domain-access>
 </access-policy>");
+                        writer.Flush();
                     }
 
                 }
