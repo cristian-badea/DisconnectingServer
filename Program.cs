@@ -12,22 +12,29 @@ namespace DisconnectingServer
         {
             var port = args.Length > 0 ? int.Parse(args[0]) : 1234;
             var socket = new TcpListener(new IPEndPoint(IPAddress.Any, port));
-            socket.Start();
-            while (true)
+            try
             {
-                var client = socket.AcceptTcpClient();
-                var worker = new BackgroundWorker();
-                worker.DoWork += (sender, eventArgs) =>
+                socket.Start();
+                while (true)
                 {
-                    using (client)
+                    var client = socket.AcceptTcpClient();
+                    var worker = new BackgroundWorker();
+                    worker.DoWork += (sender, eventArgs) =>
                     {
-                        var stream = client.GetStream();
-                        var reader = new StreamReader(stream);
-                        var line = reader.ReadLine();
-                        Console.WriteLine("Received: {0}", line);
-                    }
-                };
-                worker.RunWorkerAsync();
+                        using (client)
+                        {
+                            var stream = client.GetStream();
+                            var reader = new StreamReader(stream);
+                            var line = reader.ReadLine();
+                            Console.WriteLine("Received: {0}", line);
+                        }
+                    };
+                    worker.RunWorkerAsync();
+                }
+            }
+            finally
+            {
+                socket.Stop();
             }
         }
     }
